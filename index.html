@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from 'recharts';
-import { Shuffle, Play, RotateCcw } from 'lucide-react';
+import { Shuffle, Play, RotateCcw, Menu, X, BookOpen, Github, Twitter } from 'lucide-react';
 
 const MuestreoAleatorio = () => {
   const [poblacionSize, setPoblacionSize] = useState(100);
@@ -9,6 +9,7 @@ const MuestreoAleatorio = () => {
   const [muestra, setMuestra] = useState([]);
   const [historialMedias, setHistorialMedias] = useState([]);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     generarPoblacion();
@@ -81,18 +82,81 @@ const MuestreoAleatorio = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="bg-white rounded-2xl shadow-2xl p-8 mb-6">
-          <h1 className="text-4xl font-bold text-indigo-900 mb-3">Simple Random Sampling</h1>
-          <p className="text-gray-600 mb-6">
-            Explore how simple random sampling works: each element of the population has an equal probability of being selected.
-          </p>
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
+      {/* Navigation */}
+      <nav className="bg-slate-900/50 backdrop-blur-lg border-b border-white/10 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
+                <Shuffle className="text-white" size={24} />
+              </div>
+              <span className="text-white font-bold text-xl">SampleViz</span>
+            </div>
+            
+            <div className="hidden md:flex items-center space-x-8">
+              <a href="#demo" className="text-gray-300 hover:text-white transition">Demo</a>
+              <a href="#about" className="text-gray-300 hover:text-white transition">About</a>
+              <a href="#guide" className="text-gray-300 hover:text-white transition">Guide</a>
+              <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg transition font-semibold">
+                Get Started
+              </button>
+            </div>
 
-          <div className="grid md:grid-cols-2 gap-6 mb-8 bg-indigo-50 p-6 rounded-xl">
+            <button 
+              onClick={() => setMenuOpen(!menuOpen)}
+              className="md:hidden text-white"
+            >
+              {menuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          </div>
+        </div>
+
+        {menuOpen && (
+          <div className="md:hidden bg-slate-800/95 backdrop-blur-lg border-t border-white/10">
+            <div className="px-4 py-4 space-y-3">
+              <a href="#demo" className="block text-gray-300 hover:text-white transition py-2">Demo</a>
+              <a href="#about" className="block text-gray-300 hover:text-white transition py-2">About</a>
+              <a href="#guide" className="block text-gray-300 hover:text-white transition py-2">Guide</a>
+              <button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg transition font-semibold">
+                Get Started
+              </button>
+            </div>
+          </div>
+        )}
+      </nav>
+
+      {/* Hero Section */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="text-center mb-16">
+          <h1 className="text-5xl md:text-6xl font-bold text-white mb-6 leading-tight">
+            Master <span className="bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">Simple Random Sampling</span>
+          </h1>
+          <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-8">
+            An interactive visualization tool to understand how simple random sampling works. 
+            Explore probability, mean convergence, and statistical distributions in real-time.
+          </p>
+          <div className="flex flex-wrap justify-center gap-4">
+            <button className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-8 py-4 rounded-xl font-bold text-lg transition transform hover:scale-105 shadow-xl">
+              Start Exploring →
+            </button>
+          </div>
+        </div>
+
+        {/* Main Demo Section */}
+        <div id="demo" className="bg-white/10 backdrop-blur-lg rounded-3xl shadow-2xl p-8 mb-12 border border-white/20">
+          <div className="mb-8">
+            <h2 className="text-3xl font-bold text-white mb-3">Interactive Sampling Demo</h2>
+            <p className="text-gray-300">
+              Adjust the population and sample sizes, then take samples to see the magic of randomization.
+            </p>
+          </div>
+
+          {/* Controls */}
+          <div className="grid md:grid-cols-2 gap-6 mb-8 bg-white/5 p-6 rounded-2xl border border-white/10">
             <div>
-              <label className="block text-sm font-semibold text-indigo-900 mb-2">
-                Population Size: {poblacionSize}
+              <label className="block text-sm font-semibold text-white mb-3">
+                Population Size: <span className="text-indigo-400">{poblacionSize}</span>
               </label>
               <input
                 type="range"
@@ -100,12 +164,15 @@ const MuestreoAleatorio = () => {
                 max="200"
                 value={poblacionSize}
                 onChange={(e) => setPoblacionSize(parseInt(e.target.value))}
-                className="w-full h-2 bg-indigo-200 rounded-lg appearance-none cursor-pointer"
+                className="w-full h-3 bg-white/20 rounded-lg appearance-none cursor-pointer"
+                style={{
+                  background: `linear-gradient(to right, #6366f1 0%, #6366f1 ${(poblacionSize - 20) / 1.8}%, rgba(255,255,255,0.2) ${(poblacionSize - 20) / 1.8}%, rgba(255,255,255,0.2) 100%)`
+                }}
               />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-indigo-900 mb-2">
-                Sample Size: {muestraSize}
+              <label className="block text-sm font-semibold text-white mb-3">
+                Sample Size: <span className="text-green-400">{muestraSize}</span>
               </label>
               <input
                 type="range"
@@ -113,16 +180,19 @@ const MuestreoAleatorio = () => {
                 max={Math.min(100, poblacionSize)}
                 value={muestraSize}
                 onChange={(e) => setMuestraSize(parseInt(e.target.value))}
-                className="w-full h-2 bg-indigo-200 rounded-lg appearance-none cursor-pointer"
+                className="w-full h-3 bg-white/20 rounded-lg appearance-none cursor-pointer"
+                style={{
+                  background: `linear-gradient(to right, #10b981 0%, #10b981 ${((muestraSize - 5) / (Math.min(100, poblacionSize) - 5)) * 100}%, rgba(255,255,255,0.2) ${((muestraSize - 5) / (Math.min(100, poblacionSize) - 5)) * 100}%, rgba(255,255,255,0.2) 100%)`
+                }}
               />
             </div>
           </div>
 
-          <div className="flex gap-4 mb-8">
+          <div className="flex flex-wrap gap-4 mb-8">
             <button
               onClick={tomarMuestra}
               disabled={isAnimating}
-              className="flex-1 bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400 text-white font-bold py-3 px-6 rounded-lg flex items-center justify-center gap-2 transition-all"
+              className="flex-1 min-w-[200px] bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 disabled:from-gray-600 disabled:to-gray-700 text-white font-bold py-4 px-6 rounded-xl flex items-center justify-center gap-3 transition-all transform hover:scale-105 shadow-lg disabled:scale-100"
             >
               <Shuffle size={20} />
               Take Sample
@@ -130,31 +200,33 @@ const MuestreoAleatorio = () => {
             <button
               onClick={tomarMultiplesMuestras}
               disabled={isAnimating}
-              className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white font-bold py-3 px-6 rounded-lg flex items-center justify-center gap-2 transition-all"
+              className="flex-1 min-w-[200px] bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 disabled:from-gray-600 disabled:to-gray-700 text-white font-bold py-4 px-6 rounded-xl flex items-center justify-center gap-3 transition-all transform hover:scale-105 shadow-lg disabled:scale-100"
             >
               <Play size={20} />
-              10 Samples
+              {isAnimating ? 'Sampling...' : '10 Samples'}
             </button>
             <button
               onClick={generarPoblacion}
               disabled={isAnimating}
-              className="bg-gray-600 hover:bg-gray-700 disabled:bg-gray-400 text-white font-bold py-3 px-6 rounded-lg flex items-center justify-center gap-2 transition-all"
+              className="bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 disabled:from-gray-600 disabled:to-gray-700 text-white font-bold py-4 px-6 rounded-xl flex items-center justify-center gap-3 transition-all transform hover:scale-105 shadow-lg disabled:scale-100"
             >
               <RotateCcw size={20} />
               Reset
             </button>
           </div>
 
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold text-indigo-900 mb-4">Visual Population</h2>
-            <div className="grid grid-cols-10 md:grid-cols-20 gap-1 bg-gray-100 p-4 rounded-lg max-h-96 overflow-auto">
+          {/* Visual Population */}
+          <div className="mb-8 bg-white/5 p-6 rounded-2xl border border-white/10">
+            <h3 className="text-2xl font-bold text-white mb-4">Visual Population</h3>
+            <p className="text-gray-300 mb-4 text-sm">Each square represents an individual. Selected samples are highlighted in green.</p>
+            <div className="grid grid-cols-10 md:grid-cols-20 gap-1 bg-black/20 p-4 rounded-xl max-h-96 overflow-auto">
               {poblacion.map((item) => (
                 <div
                   key={item.id}
-                  className={`w-8 h-8 rounded flex items-center justify-center text-xs font-bold transition-all ${
+                  className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold transition-all cursor-pointer ${
                     item.seleccionado
-                      ? 'bg-green-500 text-white scale-110 shadow-lg'
-                      : 'bg-indigo-200 text-indigo-900'
+                      ? 'bg-gradient-to-br from-green-400 to-green-600 text-white scale-110 shadow-xl'
+                      : 'bg-indigo-500/30 text-indigo-200 hover:bg-indigo-500/50'
                   }`}
                   title={`Value: ${item.valor}`}
                 >
@@ -164,58 +236,93 @@ const MuestreoAleatorio = () => {
             </div>
           </div>
 
-          <div className="grid md:grid-cols-4 gap-4 mb-8">
-            <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-4 rounded-xl">
-              <div className="text-sm opacity-90">Population Mean</div>
-              <div className="text-3xl font-bold">{stats.mediaPoblacion}</div>
+          {/* Statistics Cards */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-6 rounded-2xl shadow-xl transform hover:scale-105 transition">
+              <div className="text-sm opacity-90 mb-1">Population Mean</div>
+              <div className="text-4xl font-bold">{stats.mediaPoblacion}</div>
             </div>
-            <div className="bg-gradient-to-br from-green-500 to-green-600 text-white p-4 rounded-xl">
-              <div className="text-sm opacity-90">Sample Mean</div>
-              <div className="text-3xl font-bold">{stats.mediaMuestra}</div>
+            <div className="bg-gradient-to-br from-green-500 to-green-600 text-white p-6 rounded-2xl shadow-xl transform hover:scale-105 transition">
+              <div className="text-sm opacity-90 mb-1">Sample Mean</div>
+              <div className="text-4xl font-bold">{stats.mediaMuestra}</div>
             </div>
-            <div className="bg-gradient-to-br from-purple-500 to-purple-600 text-white p-4 rounded-xl">
-              <div className="text-sm opacity-90">N (Population)</div>
-              <div className="text-3xl font-bold">{stats.tamañoPoblacion}</div>
+            <div className="bg-gradient-to-br from-purple-500 to-purple-600 text-white p-6 rounded-2xl shadow-xl transform hover:scale-105 transition">
+              <div className="text-sm opacity-90 mb-1">N (Population)</div>
+              <div className="text-4xl font-bold">{stats.tamañoPoblacion}</div>
             </div>
-            <div className="bg-gradient-to-br from-orange-500 to-orange-600 text-white p-4 rounded-xl">
-              <div className="text-sm opacity-90">n (Sample)</div>
-              <div className="text-3xl font-bold">{stats.tamañoMuestra}</div>
+            <div className="bg-gradient-to-br from-orange-500 to-orange-600 text-white p-6 rounded-2xl shadow-xl transform hover:scale-105 transition">
+              <div className="text-sm opacity-90 mb-1">n (Sample)</div>
+              <div className="text-4xl font-bold">{stats.tamañoMuestra}</div>
             </div>
           </div>
 
+          {/* Charts */}
           <div className="grid md:grid-cols-2 gap-6">
-            <div className="bg-gray-50 p-4 rounded-xl">
-              <h3 className="text-xl font-bold text-indigo-900 mb-4">Value Distribution</h3>
+            <div className="bg-white/5 backdrop-blur-sm p-6 rounded-2xl border border-white/10">
+              <h3 className="text-xl font-bold text-white mb-4">Value Distribution</h3>
               <ResponsiveContainer width="100%" height={250}>
                 <BarChart data={distribucionData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="rango" />
-                  <YAxis />
-                  <Tooltip />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                  <XAxis dataKey="rango" stroke="#fff" />
+                  <YAxis stroke="#fff" />
+                  <Tooltip 
+                    contentStyle={{ backgroundColor: 'rgba(15, 23, 42, 0.9)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '8px' }}
+                    labelStyle={{ color: '#fff' }}
+                  />
                   <Legend />
-                  <Bar dataKey="poblacion" fill="#6366f1" name="Population" />
-                  <Bar dataKey="muestra" fill="#10b981" name="Sample" />
+                  <Bar dataKey="poblacion" fill="#6366f1" name="Population" radius={[8, 8, 0, 0]} />
+                  <Bar dataKey="muestra" fill="#10b981" name="Sample" radius={[8, 8, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
 
             {historialMedias.length > 0 && (
-              <div className="bg-gray-50 p-4 rounded-xl">
-                <h3 className="text-xl font-bold text-indigo-900 mb-4">Mean Convergence</h3>
+              <div className="bg-white/5 backdrop-blur-sm p-6 rounded-2xl border border-white/10">
+                <h3 className="text-xl font-bold text-white mb-4">Mean Convergence</h3>
                 <ResponsiveContainer width="100%" height={250}>
                   <LineChart data={historialMedias}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="numero" label={{ value: 'Sample #', position: 'insideBottom', offset: -5 }} />
-                    <YAxis />
-                    <Tooltip />
-                    <Line type="monotone" dataKey="media" stroke="#10b981" strokeWidth={2} dot={{ r: 4 }} name="Mean" />
-                    <Line type="monotone" dataKey={() => parseFloat(stats.mediaPoblacion)} stroke="#ef4444" strokeWidth={2} strokeDasharray="5 5" name="Population Mean" />
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                    <XAxis dataKey="numero" label={{ value: 'Sample #', position: 'insideBottom', offset: -5, fill: '#fff' }} stroke="#fff" />
+                    <YAxis stroke="#fff" />
+                    <Tooltip 
+                      contentStyle={{ backgroundColor: 'rgba(15, 23, 42, 0.9)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '8px' }}
+                      labelStyle={{ color: '#fff' }}
+                    />
+                    <Line type="monotone" dataKey="media" stroke="#10b981" strokeWidth={3} dot={{ r: 5, fill: '#10b981' }} name="Sample Mean" />
+                    <Line type="monotone" dataKey={() => parseFloat(stats.mediaPoblacion)} stroke="#ef4444" strokeWidth={3} strokeDasharray="5 5" name="Population Mean" />
                   </LineChart>
                 </ResponsiveContainer>
               </div>
             )}
           </div>
         </div>
+
+        {/* About Section */}
+        <div id="about" className="grid md:grid-cols-3 gap-6 mb-12">
+          <div className="bg-white/10 backdrop-blur-lg p-8 rounded-2xl border border-white/20 transform hover:scale-105 transition">
+            <div className="w-12 h-12 bg-indigo-500 rounded-xl flex items-center justify-center mb-4">
+              <Shuffle className="text-white" size={24} />
+            </div>
+            <h3 className="text-xl font-bold text-white mb-3">Random Selection</h3>
+            <p className="text-gray-300">Every element has an equal probability of being selected, ensuring unbiased representation.</p>
+          </div>
+          <div className="bg-white/10 backdrop-blur-lg p-8 rounded-2xl border border-white/20 transform hover:scale-105 transition">
+            <div className="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center mb-4">
+              <BarChart className="text-white" size={24} />
+            </div>
+            <h3 className="text-xl font-bold text-white mb-3">Statistical Analysis</h3>
+            <p className="text-gray-300">Visualize distributions and observe how sample means converge to population parameters.</p>
+          </div>
+          <div className="bg-white/10 backdrop-blur-lg p-8 rounded-2xl border border-white/20 transform hover:scale-105 transition">
+            <div className="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center mb-4">
+              <BookOpen className="text-white" size={24} />
+            </div>
+            <h3 className="text-xl font-bold text-white mb-3">Learn by Doing</h3>
+            <p className="text-gray-300">Interactive experimentation helps you understand core statistical concepts intuitively.</p>
+          </div>
+        </div>
+
+
       </div>
     </div>
   );
