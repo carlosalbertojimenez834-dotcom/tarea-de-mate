@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SampleViz - Simple Random Sampling</title>
+    <title>Mr. O's Homework Checker - Simple Random Sampling</title>
+    <script src="https://cdn.plot.ly/plotly-2.26.0.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -119,6 +120,32 @@
             color: rgba(255, 255, 255, 0.8);
             max-width: 800px;
             margin: 0 auto 2rem;
+        }
+
+        .scenario-box {
+            background: rgba(59, 130, 246, 0.2);
+            border: 2px solid rgba(59, 130, 246, 0.5);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin: 2rem auto;
+            max-width: 700px;
+            text-align: left;
+        }
+
+        .scenario-box h3 {
+            color: #93c5fd;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .scenario-box p {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 0.5rem;
+        }
+
+        .scenario-box strong {
+            color: #fbbf24;
         }
 
         .hero-btn {
@@ -250,40 +277,61 @@
             min-width: auto;
         }
 
-        .population-grid {
+        .classroom-grid {
             display: grid;
-            grid-template-columns: repeat(20, 1fr);
-            gap: 4px;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 8px;
             background: rgba(0, 0, 0, 0.2);
-            padding: 1rem;
+            padding: 1.5rem;
             border-radius: 12px;
-            max-height: 400px;
-            overflow-y: auto;
             margin-bottom: 2rem;
         }
 
-        .population-item {
+        .student-card {
             aspect-ratio: 1;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             font-weight: bold;
-            border-radius: 6px;
+            border-radius: 8px;
             transition: all 0.3s;
             cursor: pointer;
+            padding: 0.5rem;
         }
 
-        .population-item.default {
-            background: rgba(99, 102, 241, 0.3);
-            color: #c7d2fe;
+        .student-card.done {
+            background: rgba(34, 197, 94, 0.3);
+            border: 2px solid #22c55e;
+            color: #86efac;
         }
 
-        .population-item.selected {
-            background: linear-gradient(135deg, #34d399, #10b981);
-            color: white;
+        .student-card.not-done {
+            background: rgba(239, 68, 68, 0.3);
+            border: 2px solid #ef4444;
+            color: #fca5a5;
+        }
+
+        .student-card.checked {
             transform: scale(1.1);
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.5);
+            box-shadow: 0 0 20px rgba(250, 204, 21, 0.8);
+            border: 3px solid #fbbf24;
+        }
+
+        .student-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .student-name {
+            font-size: 0.7rem;
+            opacity: 0.9;
+        }
+
+        .homework-status {
+            font-size: 0.6rem;
+            margin-top: 0.25rem;
         }
 
         .stats-grid {
@@ -413,8 +461,8 @@
                 grid-template-columns: 1fr;
             }
 
-            .population-grid {
-                grid-template-columns: repeat(10, 1fr);
+            .classroom-grid {
+                grid-template-columns: repeat(4, 1fr);
             }
 
             .nav-links {
@@ -427,80 +475,85 @@
     <nav>
         <div class="nav-container">
             <div class="logo">
-                <div class="logo-icon">🎲</div>
-                <span class="logo-text">SampleViz</span>
+                <div class="logo-icon">📚</div>
+                <span class="logo-text">Mr. O's Homework Checker</span>
             </div>
             <div class="nav-links">
                 <a href="#demo">Demo</a>
                 <a href="#about">About</a>
-                <a href="#guide">Guide</a>
-                <button class="btn-primary">Get Started</button>
+                <button class="btn-primary">Learn More</button>
             </div>
         </div>
     </nav>
 
     <div class="container">
         <div class="hero">
-            <h1>Master <span class="gradient-text">Simple Random Sampling</span></h1>
-            <p>An interactive visualization tool to understand how simple random sampling works. Explore probability, mean convergence, and statistical distributions in real-time.</p>
-            <button class="hero-btn">Start Exploring →</button>
+            <h1>Understanding <span class="gradient-text">Simple Random Sampling</span></h1>
+            <p>Learn how Mr. O uses sampling to efficiently check homework without reviewing all 32 assignments!</p>
+            
+            <div class="scenario-box">
+                <h3>📖 The Scenario</h3>
+                <p><strong>Mr. O</strong> is a teacher with <strong>32 students</strong> in his class.</p>
+                <p>Instead of checking all 32 homework assignments, he decides to randomly check <strong>10 assignments</strong> to estimate how many students completed their homework.</p>
+                <p>This is <strong>Simple Random Sampling</strong> - each student has an equal chance of being selected!</p>
+            </div>
         </div>
 
         <div id="demo" class="demo-section">
             <div class="demo-header">
-                <h2>Interactive Sampling Demo</h2>
-                <p>Adjust the population and sample sizes, then take samples to see the magic of randomization.</p>
+                <h2>🎓 Mr. O's Classroom</h2>
+                <p>Click "Check Homework" to randomly select students and see how sampling works!</p>
             </div>
 
             <div class="controls">
                 <div class="control-group">
-                    <label>Population Size: <span class="control-value" id="popSizeLabel">100</span></label>
-                    <input type="range" id="popSize" min="20" max="200" value="100">
+                    <label>Total Students (Population): <span class="control-value" id="popSizeLabel">32</span></label>
+                    <input type="range" id="popSize" min="20" max="50" value="32">
                 </div>
                 <div class="control-group">
-                    <label>Sample Size: <span class="control-value" id="sampleSizeLabel">20</span></label>
-                    <input type="range" id="sampleSize" min="5" max="100" value="20">
+                    <label>Homework to Check (Sample): <span class="control-value" id="sampleSizeLabel">10</span></label>
+                    <input type="range" id="sampleSize" min="5" max="25" value="10">
                 </div>
             </div>
 
             <div class="button-group">
-                <button class="btn btn-sample" onclick="takeSample()">🔀 Take Sample</button>
-                <button class="btn btn-multiple" onclick="takeMultipleSamples()" id="multiBtn">▶ 10 Samples</button>
-                <button class="btn btn-reset" onclick="resetPopulation()">↻ Reset</button>
+                <button class="btn btn-sample" onclick="takeSample()">✅ Check Homework</button>
+                <button class="btn btn-multiple" onclick="takeMultipleSamples()" id="multiBtn">🔄 Check 10 Times</button>
+                <button class="btn btn-reset" onclick="resetPopulation()">↻ New Class</button>
             </div>
 
             <div class="demo-header">
-                <h3>Visual Population</h3>
-                <p style="font-size: 0.875rem;">Each square represents an individual. Selected samples are highlighted in green.</p>
+                <h3>👥 The Classroom</h3>
+                <p style="font-size: 0.875rem;">✅ = Did homework | ❌ = Didn't do it | ⭐ = Being checked</p>
             </div>
-            <div class="population-grid" id="populationGrid"></div>
+            <div class="classroom-grid" id="classroomGrid"></div>
 
             <div class="stats-grid">
                 <div class="stat-card blue">
-                    <div class="stat-label">Population Mean</div>
-                    <div class="stat-value" id="popMean">0.00</div>
+                    <div class="stat-label">🎯 Actual % (All Students)</div>
+                    <div class="stat-value" id="actualPercent">0%</div>
                 </div>
                 <div class="stat-card green">
-                    <div class="stat-label">Sample Mean</div>
-                    <div class="stat-value" id="sampleMean">0.00</div>
+                    <div class="stat-label">📊 Sample Estimate %</div>
+                    <div class="stat-value" id="samplePercent">0%</div>
                 </div>
                 <div class="stat-card purple">
-                    <div class="stat-label">N (Population)</div>
-                    <div class="stat-value" id="popN">100</div>
+                    <div class="stat-label">👨‍🎓 Total Students</div>
+                    <div class="stat-value" id="popN">32</div>
                 </div>
                 <div class="stat-card orange">
-                    <div class="stat-label">n (Sample)</div>
+                    <div class="stat-label">📝 Homework Checked</div>
                     <div class="stat-value" id="sampleN">0</div>
                 </div>
             </div>
 
             <div class="charts-grid">
                 <div class="chart-container">
-                    <h3>Value Distribution</h3>
-                    <div id="distributionChart"></div>
+                    <h3>📈 Comparison: Actual vs Sample</h3>
+                    <div id="comparisonChart"></div>
                 </div>
                 <div class="chart-container">
-                    <h3>Mean Convergence</h3>
+                    <h3>🎯 Estimate Accuracy Over Time</h3>
                     <div id="convergenceChart"></div>
                 </div>
             </div>
@@ -508,50 +561,53 @@
 
         <div id="about" class="about-grid">
             <div class="about-card">
-                <div class="about-icon">🔀</div>
-                <h3>Random Selection</h3>
-                <p>Every element has an equal probability of being selected, ensuring unbiased representation.</p>
+                <div class="about-icon">🎲</div>
+                <h3>Random & Fair</h3>
+                <p>Every student has an equal probability of being selected. Mr. O doesn't choose his favorites - it's completely random!</p>
             </div>
             <div class="about-card">
-                <div class="about-icon">📊</div>
-                <h3>Statistical Analysis</h3>
-                <p>Visualize distributions and observe how sample means converge to population parameters.</p>
+                <div class="about-icon">⏱️</div>
+                <h3>Saves Time</h3>
+                <p>Instead of checking 32 assignments, Mr. O only checks 10. That's a 69% time savings while still getting reliable estimates!</p>
             </div>
             <div class="about-card">
-                <div class="about-icon">📖</div>
-                <h3>Learn by Doing</h3>
-                <p>Interactive experimentation helps you understand core statistical concepts intuitively.</p>
+                <div class="about-icon">🎯</div>
+                <h3>Surprisingly Accurate</h3>
+                <p>Even with a small sample, the estimate is usually very close to the true percentage. Try it multiple times and see!</p>
             </div>
         </div>
     </div>
 
     <script src="https://cdn.plot.ly/plotly-2.26.0.min.js"></script>
     <script>
-        let population = [];
+        let students = [];
         let sampleHistory = [];
         let isAnimating = false;
 
-        // Wait for Plotly to load
+        const studentNames = ['Slater', 'Jax', 'Carlos', 'Patrik', 'Sophia', 'Akeela', 'Hunter', 'Emma', 'Finn', 'Grace',
+                            'Kate', 'Liam', 'Mia', 'Noah', 'Olivia', 'Pete', 'Quinn', 'Rose', 'Sam', 'Tara',
+                            'Uma', 'Vince', 'Wendy', 'Xander', 'Yara', 'Zach', 'Ava', 'Blake', 'Clara', 'Diego',
+                            'Ella', 'Felix', 'Gina', 'Henry', 'Iris', 'Jake', 'Kira', 'Leo', 'Maya', 'Nate',
+                            'Olga', 'Paul', 'Rita', 'Steve', 'Tina', 'Uri', 'Vera', 'Will', 'Zoe', 'Amy'];
+
         function initApp() {
             resetPopulation();
             updateCharts();
         }
 
-        // Initialize when page loads
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', initApp);
         } else {
             initApp();
         }
 
-        // Control handlers
         document.getElementById('popSize').addEventListener('input', (e) => {
             document.getElementById('popSizeLabel').textContent = e.target.value;
             resetPopulation();
         });
 
         document.getElementById('sampleSize').addEventListener('input', (e) => {
-            const max = Math.min(100, parseInt(document.getElementById('popSize').value));
+            const max = Math.min(25, parseInt(document.getElementById('popSize').value));
             e.target.max = max;
             if (parseInt(e.target.value) > max) e.target.value = max;
             document.getElementById('sampleSizeLabel').textContent = e.target.value;
@@ -559,25 +615,31 @@
 
         function resetPopulation() {
             const size = parseInt(document.getElementById('popSize').value);
-            population = Array.from({ length: size }, (_, i) => ({
+            students = Array.from({ length: size }, (_, i) => ({
                 id: i,
-                value: Math.floor(Math.random() * 100) + 1,
-                selected: false
+                name: studentNames[i % studentNames.length],
+                didHomework: Math.random() > 0.3, // 70% chance of doing homework
+                checked: false
             }));
             sampleHistory = [];
-            renderPopulation();
+            renderClassroom();
             updateStats();
             updateCharts();
         }
 
-        function renderPopulation() {
-            const grid = document.getElementById('populationGrid');
+        function renderClassroom() {
+            const grid = document.getElementById('classroomGrid');
             grid.innerHTML = '';
-            population.forEach(item => {
+            students.forEach(student => {
                 const div = document.createElement('div');
-                div.className = `population-item ${item.selected ? 'selected' : 'default'}`;
-                div.textContent = item.value;
-                div.title = `Value: ${item.value}`;
+                const statusClass = student.didHomework ? 'done' : 'not-done';
+                div.className = `student-card ${statusClass} ${student.checked ? 'checked' : ''}`;
+                div.innerHTML = `
+                    <div class="student-icon">${student.didHomework ? '✅' : '❌'}</div>
+                    <div class="student-name">${student.name}</div>
+                    ${student.checked ? '<div class="homework-status">⭐ Checked</div>' : ''}
+                `;
+                div.title = `${student.name}: ${student.didHomework ? 'Did homework' : 'Did not do homework'}`;
                 grid.appendChild(div);
             });
         }
@@ -586,18 +648,23 @@
             const sampleSize = parseInt(document.getElementById('sampleSize').value);
             const indices = new Set();
             while (indices.size < sampleSize) {
-                indices.add(Math.floor(Math.random() * population.length));
+                indices.add(Math.floor(Math.random() * students.length));
             }
 
-            population.forEach((item, i) => {
-                item.selected = indices.has(i);
+            students.forEach((student, i) => {
+                student.checked = indices.has(i);
             });
 
-            const sample = population.filter(item => item.selected);
-            const mean = sample.reduce((sum, item) => sum + item.value, 0) / sample.length;
-            sampleHistory.push(mean);
+            const sample = students.filter(s => s.checked);
+            const samplePercent = (sample.filter(s => s.didHomework).length / sample.length) * 100;
+            const actualPercent = (students.filter(s => s.didHomework).length / students.length) * 100;
+            
+            sampleHistory.push({
+                sample: samplePercent,
+                actual: actualPercent
+            });
 
-            renderPopulation();
+            renderClassroom();
             updateStats();
             updateCharts();
         }
@@ -605,95 +672,82 @@
         async function takeMultipleSamples() {
             if (isAnimating) return;
             isAnimating = true;
-            document.getElementById('multiBtn').textContent = '⏳ Sampling...';
+            document.getElementById('multiBtn').textContent = '⏳ Checking...';
             document.getElementById('multiBtn').disabled = true;
 
             for (let i = 0; i < 10; i++) {
                 takeSample();
-                await new Promise(resolve => setTimeout(resolve, 300));
+                await new Promise(resolve => setTimeout(resolve, 400));
             }
 
             isAnimating = false;
-            document.getElementById('multiBtn').textContent = '▶ 10 Samples';
+            document.getElementById('multiBtn').textContent = '🔄 Check 10 Times';
             document.getElementById('multiBtn').disabled = false;
         }
 
         function updateStats() {
-            const popMean = population.reduce((sum, item) => sum + item.value, 0) / population.length;
-            const sample = population.filter(item => item.selected);
-            const sampleMean = sample.length > 0 
-                ? sample.reduce((sum, item) => sum + item.value, 0) / sample.length 
-                : 0;
+            const checked = students.filter(s => s.checked);
+            const actualDone = students.filter(s => s.didHomework).length;
+            const actualPercent = (actualDone / students.length) * 100;
+            const sampleDone = checked.filter(s => s.didHomework).length;
+            const samplePercent = checked.length > 0 ? (sampleDone / checked.length) * 100 : 0;
 
-            document.getElementById('popMean').textContent = popMean.toFixed(2);
-            document.getElementById('sampleMean').textContent = sampleMean.toFixed(2);
-            document.getElementById('popN').textContent = population.length;
-            document.getElementById('sampleN').textContent = sample.length;
+            document.getElementById('actualPercent').textContent = actualPercent.toFixed(1) + '%';
+            document.getElementById('samplePercent').textContent = samplePercent.toFixed(1) + '%';
+            document.getElementById('popN').textContent = students.length;
+            document.getElementById('sampleN').textContent = checked.length;
         }
 
         function updateCharts() {
-            updateDistributionChart();
+            updateComparisonChart();
             updateConvergenceChart();
         }
 
-        function updateDistributionChart() {
-            const sample = population.filter(item => item.selected);
-            const ranges = [
-                { name: '1-20', min: 1, max: 20 },
-                { name: '21-40', min: 21, max: 40 },
-                { name: '41-60', min: 41, max: 60 },
-                { name: '61-80', min: 61, max: 80 },
-                { name: '81-100', min: 81, max: 100 }
-            ];
-
-            const popData = ranges.map(r => 
-                population.filter(p => p.value >= r.min && p.value <= r.max).length
-            );
-            const sampleData = ranges.map(r => 
-                sample.filter(s => s.value >= r.min && s.value <= r.max).length
-            );
+        function updateComparisonChart() {
+            const checked = students.filter(s => s.checked);
+            const actualDone = students.filter(s => s.didHomework).length;
+            const actualPercent = (actualDone / students.length) * 100;
+            const sampleDone = checked.filter(s => s.didHomework).length;
+            const samplePercent = checked.length > 0 ? (sampleDone / checked.length) * 100 : 0;
 
             const trace1 = {
-                x: ranges.map(r => r.name),
-                y: popData,
-                name: 'Population',
+                x: ['Actual (All Students)', 'Sample Estimate'],
+                y: [actualPercent, samplePercent],
                 type: 'bar',
-                marker: { color: '#6366f1' }
-            };
-
-            const trace2 = {
-                x: ranges.map(r => r.name),
-                y: sampleData,
-                name: 'Sample',
-                type: 'bar',
-                marker: { color: '#10b981' }
+                marker: {
+                    color: ['#3b82f6', '#10b981']
+                },
+                text: [actualPercent.toFixed(1) + '%', samplePercent.toFixed(1) + '%'],
+                textposition: 'auto',
             };
 
             const layout = {
                 paper_bgcolor: 'rgba(0,0,0,0)',
                 plot_bgcolor: 'rgba(0,0,0,0)',
-                font: { color: 'white' },
+                font: { color: 'white', size: 14 },
+                yaxis: { 
+                    title: '% Completed Homework',
+                    gridcolor: 'rgba(255,255,255,0.1)',
+                    range: [0, 100]
+                },
                 xaxis: { gridcolor: 'rgba(255,255,255,0.1)' },
-                yaxis: { gridcolor: 'rgba(255,255,255,0.1)' },
-                margin: { t: 20, r: 20, b: 40, l: 40 },
+                margin: { t: 20, r: 20, b: 60, l: 60 },
                 height: 250
             };
 
-            Plotly.newPlot('distributionChart', [trace1, trace2], layout, { displayModeBar: false });
+            Plotly.newPlot('comparisonChart', [trace1], layout, { displayModeBar: false });
         }
 
         function updateConvergenceChart() {
             if (sampleHistory.length === 0) {
-                document.getElementById('convergenceChart').innerHTML = '<p style="text-align: center; padding: 2rem; color: rgba(255,255,255,0.5);">Take samples to see convergence</p>';
+                document.getElementById('convergenceChart').innerHTML = '<p style="text-align: center; padding: 2rem; color: rgba(255,255,255,0.5);">Check homework to see accuracy over time</p>';
                 return;
             }
 
-            const popMean = population.reduce((sum, item) => sum + item.value, 0) / population.length;
-
             const trace1 = {
                 x: sampleHistory.map((_, i) => i + 1),
-                y: sampleHistory,
-                name: 'Sample Mean',
+                y: sampleHistory.map(h => h.sample),
+                name: 'Sample Estimate',
                 type: 'scatter',
                 mode: 'lines+markers',
                 line: { color: '#10b981', width: 3 },
@@ -702,8 +756,8 @@
 
             const trace2 = {
                 x: sampleHistory.map((_, i) => i + 1),
-                y: Array(sampleHistory.length).fill(popMean),
-                name: 'Population Mean',
+                y: sampleHistory.map(h => h.actual),
+                name: 'Actual %',
                 type: 'scatter',
                 mode: 'lines',
                 line: { color: '#ef4444', width: 3, dash: 'dash' }
@@ -713,9 +767,13 @@
                 paper_bgcolor: 'rgba(0,0,0,0)',
                 plot_bgcolor: 'rgba(0,0,0,0)',
                 font: { color: 'white' },
-                xaxis: { title: 'Sample #', gridcolor: 'rgba(255,255,255,0.1)' },
-                yaxis: { gridcolor: 'rgba(255,255,255,0.1)' },
-                margin: { t: 20, r: 20, b: 60, l: 40 },
+                xaxis: { title: 'Check #', gridcolor: 'rgba(255,255,255,0.1)' },
+                yaxis: { 
+                    title: '% Completed',
+                    gridcolor: 'rgba(255,255,255,0.1)',
+                    range: [0, 100]
+                },
+                margin: { t: 20, r: 20, b: 60, l: 60 },
                 height: 250
             };
 
