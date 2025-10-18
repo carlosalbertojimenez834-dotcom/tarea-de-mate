@@ -1,331 +1,726 @@
-import React, { useState, useEffect } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from 'recharts';
-import { Shuffle, Play, RotateCcw, Menu, X, BookOpen, Github, Twitter } from 'lucide-react';
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SampleViz - Simple Random Sampling</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-const MuestreoAleatorio = () => {
-  const [poblacionSize, setPoblacionSize] = useState(100);
-  const [muestraSize, setMuestraSize] = useState(20);
-  const [poblacion, setPoblacion] = useState([]);
-  const [muestra, setMuestra] = useState([]);
-  const [historialMedias, setHistorialMedias] = useState([]);
-  const [isAnimating, setIsAnimating] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #312e81 100%);
+            min-height: 100vh;
+            color: white;
+        }
 
-  useEffect(() => {
-    generarPoblacion();
-  }, [poblacionSize]);
+        nav {
+            background: rgba(15, 23, 42, 0.5);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
 
-  const generarPoblacion = () => {
-    const nuevaPoblacion = Array.from({ length: poblacionSize }, (_, i) => ({
-      id: i,
-      valor: Math.floor(Math.random() * 100) + 1,
-      seleccionado: false
-    }));
-    setPoblacion(nuevaPoblacion);
-    setMuestra([]);
-    setHistorialMedias([]);
-  };
+        .nav-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
-  const tomarMuestra = () => {
-    const indices = new Set();
-    while (indices.size < muestraSize) {
-      indices.add(Math.floor(Math.random() * poblacionSize));
-    }
-    
-    const nuevaMuestra = Array.from(indices).map(i => poblacion[i]);
-    setMuestra(nuevaMuestra);
-    
-    const nuevaPoblacion = poblacion.map((item, i) => ({
-      ...item,
-      seleccionado: indices.has(i)
-    }));
-    setPoblacion(nuevaPoblacion);
-    
-    const mediaMuestra = nuevaMuestra.reduce((sum, item) => sum + item.valor, 0) / nuevaMuestra.length;
-    setHistorialMedias(prev => [...prev, { 
-      numero: prev.length + 1, 
-      media: parseFloat(mediaMuestra.toFixed(2)) 
-    }]);
-  };
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
 
-  const tomarMultiplesMuestras = async () => {
-    setIsAnimating(true);
-    for (let i = 0; i < 10; i++) {
-      tomarMuestra();
-      await new Promise(resolve => setTimeout(resolve, 300));
-    }
-    setIsAnimating(false);
-  };
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #6366f1, #9333ea);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
 
-  const calcularEstadisticas = () => {
-    const mediaPoblacion = poblacion.reduce((sum, item) => sum + item.valor, 0) / poblacion.length;
-    const mediaMuestra = muestra.length > 0 
-      ? muestra.reduce((sum, item) => sum + item.valor, 0) / muestra.length 
-      : 0;
-    
-    return {
-      mediaPoblacion: mediaPoblacion.toFixed(2),
-      mediaMuestra: mediaMuestra.toFixed(2),
-      tamañoPoblacion: poblacion.length,
-      tamañoMuestra: muestra.length
-    };
-  };
+        .logo-text {
+            font-size: 1.25rem;
+            font-weight: bold;
+        }
 
-  const stats = calcularEstadisticas();
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
 
-  const distribucionData = [
-    { rango: '1-20', poblacion: poblacion.filter(p => p.valor <= 20).length, muestra: muestra.filter(m => m.valor <= 20).length },
-    { rango: '21-40', poblacion: poblacion.filter(p => p.valor > 20 && p.valor <= 40).length, muestra: muestra.filter(m => m.valor > 20 && m.valor <= 40).length },
-    { rango: '41-60', poblacion: poblacion.filter(p => p.valor > 40 && p.valor <= 60).length, muestra: muestra.filter(m => m.valor > 40 && m.valor <= 60).length },
-    { rango: '61-80', poblacion: poblacion.filter(p => p.valor > 60 && p.valor <= 80).length, muestra: muestra.filter(m => m.valor > 60 && m.valor <= 80).length },
-    { rango: '81-100', poblacion: poblacion.filter(p => p.valor > 80).length, muestra: muestra.filter(m => m.valor > 80).length }
-  ];
+        .nav-links a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900">
-      {/* Navigation */}
-      <nav className="bg-slate-900/50 backdrop-blur-lg border-b border-white/10 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
-                <Shuffle className="text-white" size={24} />
-              </div>
-              <span className="text-white font-bold text-xl">SampleViz</span>
+        .nav-links a:hover {
+            color: white;
+        }
+
+        .btn-primary {
+            background: #6366f1;
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn-primary:hover {
+            background: #4f46e5;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 4rem 0;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: bold;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #818cf8, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: rgba(255, 255, 255, 0.8);
+            max-width: 800px;
+            margin: 0 auto 2rem;
+        }
+
+        .hero-btn {
+            background: linear-gradient(135deg, #6366f1, #9333ea);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            border: none;
+            font-weight: bold;
+            font-size: 1.125rem;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .hero-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .demo-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            padding: 2rem;
+            margin-bottom: 3rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .demo-header h2 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .demo-header p {
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 2rem;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1.5rem;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .control-group label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+
+        .control-value {
+            color: #818cf8;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 12px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #6366f1;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #6366f1;
+            cursor: pointer;
+            border: none;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            flex: 1;
+            min-width: 200px;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: transform 0.3s;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: scale(1.05);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-sample {
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+        }
+
+        .btn-multiple {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+
+        .btn-reset {
+            background: linear-gradient(135deg, #6b7280, #4b5563);
+            flex: 0 0 auto;
+            min-width: auto;
+        }
+
+        .population-grid {
+            display: grid;
+            grid-template-columns: repeat(20, 1fr);
+            gap: 4px;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 1rem;
+            border-radius: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 2rem;
+        }
+
+        .population-item {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: bold;
+            border-radius: 6px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .population-item.default {
+            background: rgba(99, 102, 241, 0.3);
+            color: #c7d2fe;
+        }
+
+        .population-item.selected {
+            background: linear-gradient(135deg, #34d399, #10b981);
+            color: white;
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.5);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            padding: 1.5rem;
+            border-radius: 16px;
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: scale(1.05);
+        }
+
+        .stat-card.blue {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+        }
+
+        .stat-card.green {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+
+        .stat-card.purple {
+            background: linear-gradient(135deg, #a855f7, #9333ea);
+        }
+
+        .stat-card.orange {
+            background: linear-gradient(135deg, #f97316, #ea580c);
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            opacity: 0.9;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .chart-container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(5px);
+            padding: 1.5rem;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .chart-container h3 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .about-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .about-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s;
+        }
+
+        .about-card:hover {
+            transform: scale(1.05);
+        }
+
+        .about-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 1rem;
+        }
+
+        .about-card:nth-child(1) .about-icon {
+            background: #6366f1;
+        }
+
+        .about-card:nth-child(2) .about-icon {
+            background: #10b981;
+        }
+
+        .about-card:nth-child(3) .about-icon {
+            background: #a855f7;
+        }
+
+        .about-card h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .about-card p {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .controls {
+                grid-template-columns: 1fr;
+            }
+
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .population-grid {
+                grid-template-columns: repeat(10, 1fr);
+            }
+
+            .nav-links {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <div class="logo">
+                <div class="logo-icon">🎲</div>
+                <span class="logo-text">SampleViz</span>
             </div>
-            
-            <div className="hidden md:flex items-center space-x-8">
-              <a href="#demo" className="text-gray-300 hover:text-white transition">Demo</a>
-              <a href="#about" className="text-gray-300 hover:text-white transition">About</a>
-              <a href="#guide" className="text-gray-300 hover:text-white transition">Guide</a>
-              <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg transition font-semibold">
-                Get Started
-              </button>
+            <div class="nav-links">
+                <a href="#demo">Demo</a>
+                <a href="#about">About</a>
+                <a href="#guide">Guide</a>
+                <button class="btn-primary">Get Started</button>
             </div>
+        </div>
+    </nav>
 
-            <button 
-              onClick={() => setMenuOpen(!menuOpen)}
-              className="md:hidden text-white"
-            >
-              {menuOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
-          </div>
+    <div class="container">
+        <div class="hero">
+            <h1>Master <span class="gradient-text">Simple Random Sampling</span></h1>
+            <p>An interactive visualization tool to understand how simple random sampling works. Explore probability, mean convergence, and statistical distributions in real-time.</p>
+            <button class="hero-btn">Start Exploring →</button>
         </div>
 
-        {menuOpen && (
-          <div className="md:hidden bg-slate-800/95 backdrop-blur-lg border-t border-white/10">
-            <div className="px-4 py-4 space-y-3">
-              <a href="#demo" className="block text-gray-300 hover:text-white transition py-2">Demo</a>
-              <a href="#about" className="block text-gray-300 hover:text-white transition py-2">About</a>
-              <a href="#guide" className="block text-gray-300 hover:text-white transition py-2">Guide</a>
-              <button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg transition font-semibold">
-                Get Started
-              </button>
+        <div id="demo" class="demo-section">
+            <div class="demo-header">
+                <h2>Interactive Sampling Demo</h2>
+                <p>Adjust the population and sample sizes, then take samples to see the magic of randomization.</p>
             </div>
-          </div>
-        )}
-      </nav>
 
-      {/* Hero Section */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="text-center mb-16">
-          <h1 className="text-5xl md:text-6xl font-bold text-white mb-6 leading-tight">
-            Master <span className="bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">Simple Random Sampling</span>
-          </h1>
-          <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-8">
-            An interactive visualization tool to understand how simple random sampling works. 
-            Explore probability, mean convergence, and statistical distributions in real-time.
-          </p>
-          <div className="flex flex-wrap justify-center gap-4">
-            <button className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-8 py-4 rounded-xl font-bold text-lg transition transform hover:scale-105 shadow-xl">
-              Start Exploring →
-            </button>
-          </div>
-        </div>
-
-        {/* Main Demo Section */}
-        <div id="demo" className="bg-white/10 backdrop-blur-lg rounded-3xl shadow-2xl p-8 mb-12 border border-white/20">
-          <div className="mb-8">
-            <h2 className="text-3xl font-bold text-white mb-3">Interactive Sampling Demo</h2>
-            <p className="text-gray-300">
-              Adjust the population and sample sizes, then take samples to see the magic of randomization.
-            </p>
-          </div>
-
-          {/* Controls */}
-          <div className="grid md:grid-cols-2 gap-6 mb-8 bg-white/5 p-6 rounded-2xl border border-white/10">
-            <div>
-              <label className="block text-sm font-semibold text-white mb-3">
-                Population Size: <span className="text-indigo-400">{poblacionSize}</span>
-              </label>
-              <input
-                type="range"
-                min="20"
-                max="200"
-                value={poblacionSize}
-                onChange={(e) => setPoblacionSize(parseInt(e.target.value))}
-                className="w-full h-3 bg-white/20 rounded-lg appearance-none cursor-pointer"
-                style={{
-                  background: `linear-gradient(to right, #6366f1 0%, #6366f1 ${(poblacionSize - 20) / 1.8}%, rgba(255,255,255,0.2) ${(poblacionSize - 20) / 1.8}%, rgba(255,255,255,0.2) 100%)`
-                }}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-white mb-3">
-                Sample Size: <span className="text-green-400">{muestraSize}</span>
-              </label>
-              <input
-                type="range"
-                min="5"
-                max={Math.min(100, poblacionSize)}
-                value={muestraSize}
-                onChange={(e) => setMuestraSize(parseInt(e.target.value))}
-                className="w-full h-3 bg-white/20 rounded-lg appearance-none cursor-pointer"
-                style={{
-                  background: `linear-gradient(to right, #10b981 0%, #10b981 ${((muestraSize - 5) / (Math.min(100, poblacionSize) - 5)) * 100}%, rgba(255,255,255,0.2) ${((muestraSize - 5) / (Math.min(100, poblacionSize) - 5)) * 100}%, rgba(255,255,255,0.2) 100%)`
-                }}
-              />
-            </div>
-          </div>
-
-          <div className="flex flex-wrap gap-4 mb-8">
-            <button
-              onClick={tomarMuestra}
-              disabled={isAnimating}
-              className="flex-1 min-w-[200px] bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 disabled:from-gray-600 disabled:to-gray-700 text-white font-bold py-4 px-6 rounded-xl flex items-center justify-center gap-3 transition-all transform hover:scale-105 shadow-lg disabled:scale-100"
-            >
-              <Shuffle size={20} />
-              Take Sample
-            </button>
-            <button
-              onClick={tomarMultiplesMuestras}
-              disabled={isAnimating}
-              className="flex-1 min-w-[200px] bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 disabled:from-gray-600 disabled:to-gray-700 text-white font-bold py-4 px-6 rounded-xl flex items-center justify-center gap-3 transition-all transform hover:scale-105 shadow-lg disabled:scale-100"
-            >
-              <Play size={20} />
-              {isAnimating ? 'Sampling...' : '10 Samples'}
-            </button>
-            <button
-              onClick={generarPoblacion}
-              disabled={isAnimating}
-              className="bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 disabled:from-gray-600 disabled:to-gray-700 text-white font-bold py-4 px-6 rounded-xl flex items-center justify-center gap-3 transition-all transform hover:scale-105 shadow-lg disabled:scale-100"
-            >
-              <RotateCcw size={20} />
-              Reset
-            </button>
-          </div>
-
-          {/* Visual Population */}
-          <div className="mb-8 bg-white/5 p-6 rounded-2xl border border-white/10">
-            <h3 className="text-2xl font-bold text-white mb-4">Visual Population</h3>
-            <p className="text-gray-300 mb-4 text-sm">Each square represents an individual. Selected samples are highlighted in green.</p>
-            <div className="grid grid-cols-10 md:grid-cols-20 gap-1 bg-black/20 p-4 rounded-xl max-h-96 overflow-auto">
-              {poblacion.map((item) => (
-                <div
-                  key={item.id}
-                  className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold transition-all cursor-pointer ${
-                    item.seleccionado
-                      ? 'bg-gradient-to-br from-green-400 to-green-600 text-white scale-110 shadow-xl'
-                      : 'bg-indigo-500/30 text-indigo-200 hover:bg-indigo-500/50'
-                  }`}
-                  title={`Value: ${item.valor}`}
-                >
-                  {item.valor}
+            <div class="controls">
+                <div class="control-group">
+                    <label>Population Size: <span class="control-value" id="popSizeLabel">100</span></label>
+                    <input type="range" id="popSize" min="20" max="200" value="100">
                 </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Statistics Cards */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-6 rounded-2xl shadow-xl transform hover:scale-105 transition">
-              <div className="text-sm opacity-90 mb-1">Population Mean</div>
-              <div className="text-4xl font-bold">{stats.mediaPoblacion}</div>
-            </div>
-            <div className="bg-gradient-to-br from-green-500 to-green-600 text-white p-6 rounded-2xl shadow-xl transform hover:scale-105 transition">
-              <div className="text-sm opacity-90 mb-1">Sample Mean</div>
-              <div className="text-4xl font-bold">{stats.mediaMuestra}</div>
-            </div>
-            <div className="bg-gradient-to-br from-purple-500 to-purple-600 text-white p-6 rounded-2xl shadow-xl transform hover:scale-105 transition">
-              <div className="text-sm opacity-90 mb-1">N (Population)</div>
-              <div className="text-4xl font-bold">{stats.tamañoPoblacion}</div>
-            </div>
-            <div className="bg-gradient-to-br from-orange-500 to-orange-600 text-white p-6 rounded-2xl shadow-xl transform hover:scale-105 transition">
-              <div className="text-sm opacity-90 mb-1">n (Sample)</div>
-              <div className="text-4xl font-bold">{stats.tamañoMuestra}</div>
-            </div>
-          </div>
-
-          {/* Charts */}
-          <div className="grid md:grid-cols-2 gap-6">
-            <div className="bg-white/5 backdrop-blur-sm p-6 rounded-2xl border border-white/10">
-              <h3 className="text-xl font-bold text-white mb-4">Value Distribution</h3>
-              <ResponsiveContainer width="100%" height={250}>
-                <BarChart data={distribucionData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                  <XAxis dataKey="rango" stroke="#fff" />
-                  <YAxis stroke="#fff" />
-                  <Tooltip 
-                    contentStyle={{ backgroundColor: 'rgba(15, 23, 42, 0.9)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '8px' }}
-                    labelStyle={{ color: '#fff' }}
-                  />
-                  <Legend />
-                  <Bar dataKey="poblacion" fill="#6366f1" name="Population" radius={[8, 8, 0, 0]} />
-                  <Bar dataKey="muestra" fill="#10b981" name="Sample" radius={[8, 8, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+                <div class="control-group">
+                    <label>Sample Size: <span class="control-value" id="sampleSizeLabel">20</span></label>
+                    <input type="range" id="sampleSize" min="5" max="100" value="20">
+                </div>
             </div>
 
-            {historialMedias.length > 0 && (
-              <div className="bg-white/5 backdrop-blur-sm p-6 rounded-2xl border border-white/10">
-                <h3 className="text-xl font-bold text-white mb-4">Mean Convergence</h3>
-                <ResponsiveContainer width="100%" height={250}>
-                  <LineChart data={historialMedias}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                    <XAxis dataKey="numero" label={{ value: 'Sample #', position: 'insideBottom', offset: -5, fill: '#fff' }} stroke="#fff" />
-                    <YAxis stroke="#fff" />
-                    <Tooltip 
-                      contentStyle={{ backgroundColor: 'rgba(15, 23, 42, 0.9)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '8px' }}
-                      labelStyle={{ color: '#fff' }}
-                    />
-                    <Line type="monotone" dataKey="media" stroke="#10b981" strokeWidth={3} dot={{ r: 5, fill: '#10b981' }} name="Sample Mean" />
-                    <Line type="monotone" dataKey={() => parseFloat(stats.mediaPoblacion)} stroke="#ef4444" strokeWidth={3} strokeDasharray="5 5" name="Population Mean" />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-            )}
-          </div>
+            <div class="button-group">
+                <button class="btn btn-sample" onclick="takeSample()">🔀 Take Sample</button>
+                <button class="btn btn-multiple" onclick="takeMultipleSamples()" id="multiBtn">▶ 10 Samples</button>
+                <button class="btn btn-reset" onclick="resetPopulation()">↻ Reset</button>
+            </div>
+
+            <div class="demo-header">
+                <h3>Visual Population</h3>
+                <p style="font-size: 0.875rem;">Each square represents an individual. Selected samples are highlighted in green.</p>
+            </div>
+            <div class="population-grid" id="populationGrid"></div>
+
+            <div class="stats-grid">
+                <div class="stat-card blue">
+                    <div class="stat-label">Population Mean</div>
+                    <div class="stat-value" id="popMean">0.00</div>
+                </div>
+                <div class="stat-card green">
+                    <div class="stat-label">Sample Mean</div>
+                    <div class="stat-value" id="sampleMean">0.00</div>
+                </div>
+                <div class="stat-card purple">
+                    <div class="stat-label">N (Population)</div>
+                    <div class="stat-value" id="popN">100</div>
+                </div>
+                <div class="stat-card orange">
+                    <div class="stat-label">n (Sample)</div>
+                    <div class="stat-value" id="sampleN">0</div>
+                </div>
+            </div>
+
+            <div class="charts-grid">
+                <div class="chart-container">
+                    <h3>Value Distribution</h3>
+                    <div id="distributionChart"></div>
+                </div>
+                <div class="chart-container">
+                    <h3>Mean Convergence</h3>
+                    <div id="convergenceChart"></div>
+                </div>
+            </div>
         </div>
 
-        {/* About Section */}
-        <div id="about" className="grid md:grid-cols-3 gap-6 mb-12">
-          <div className="bg-white/10 backdrop-blur-lg p-8 rounded-2xl border border-white/20 transform hover:scale-105 transition">
-            <div className="w-12 h-12 bg-indigo-500 rounded-xl flex items-center justify-center mb-4">
-              <Shuffle className="text-white" size={24} />
+        <div id="about" class="about-grid">
+            <div class="about-card">
+                <div class="about-icon">🔀</div>
+                <h3>Random Selection</h3>
+                <p>Every element has an equal probability of being selected, ensuring unbiased representation.</p>
             </div>
-            <h3 className="text-xl font-bold text-white mb-3">Random Selection</h3>
-            <p className="text-gray-300">Every element has an equal probability of being selected, ensuring unbiased representation.</p>
-          </div>
-          <div className="bg-white/10 backdrop-blur-lg p-8 rounded-2xl border border-white/20 transform hover:scale-105 transition">
-            <div className="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center mb-4">
-              <BarChart className="text-white" size={24} />
+            <div class="about-card">
+                <div class="about-icon">📊</div>
+                <h3>Statistical Analysis</h3>
+                <p>Visualize distributions and observe how sample means converge to population parameters.</p>
             </div>
-            <h3 className="text-xl font-bold text-white mb-3">Statistical Analysis</h3>
-            <p className="text-gray-300">Visualize distributions and observe how sample means converge to population parameters.</p>
-          </div>
-          <div className="bg-white/10 backdrop-blur-lg p-8 rounded-2xl border border-white/20 transform hover:scale-105 transition">
-            <div className="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center mb-4">
-              <BookOpen className="text-white" size={24} />
+            <div class="about-card">
+                <div class="about-icon">📖</div>
+                <h3>Learn by Doing</h3>
+                <p>Interactive experimentation helps you understand core statistical concepts intuitively.</p>
             </div>
-            <h3 className="text-xl font-bold text-white mb-3">Learn by Doing</h3>
-            <p className="text-gray-300">Interactive experimentation helps you understand core statistical concepts intuitively.</p>
-          </div>
         </div>
-
-
-      </div>
     </div>
-  );
-};
 
-export default MuestreoAleatorio;
+    <script src="https://cdn.plot.ly/plotly-2.26.0.min.js"></script>
+    <script>
+        let population = [];
+        let sampleHistory = [];
+        let isAnimating = false;
+
+        // Wait for Plotly to load
+        function initApp() {
+            resetPopulation();
+            updateCharts();
+        }
+
+        // Initialize when page loads
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initApp);
+        } else {
+            initApp();
+        }
+
+        // Control handlers
+        document.getElementById('popSize').addEventListener('input', (e) => {
+            document.getElementById('popSizeLabel').textContent = e.target.value;
+            resetPopulation();
+        });
+
+        document.getElementById('sampleSize').addEventListener('input', (e) => {
+            const max = Math.min(100, parseInt(document.getElementById('popSize').value));
+            e.target.max = max;
+            if (parseInt(e.target.value) > max) e.target.value = max;
+            document.getElementById('sampleSizeLabel').textContent = e.target.value;
+        });
+
+        function resetPopulation() {
+            const size = parseInt(document.getElementById('popSize').value);
+            population = Array.from({ length: size }, (_, i) => ({
+                id: i,
+                value: Math.floor(Math.random() * 100) + 1,
+                selected: false
+            }));
+            sampleHistory = [];
+            renderPopulation();
+            updateStats();
+            updateCharts();
+        }
+
+        function renderPopulation() {
+            const grid = document.getElementById('populationGrid');
+            grid.innerHTML = '';
+            population.forEach(item => {
+                const div = document.createElement('div');
+                div.className = `population-item ${item.selected ? 'selected' : 'default'}`;
+                div.textContent = item.value;
+                div.title = `Value: ${item.value}`;
+                grid.appendChild(div);
+            });
+        }
+
+        function takeSample() {
+            const sampleSize = parseInt(document.getElementById('sampleSize').value);
+            const indices = new Set();
+            while (indices.size < sampleSize) {
+                indices.add(Math.floor(Math.random() * population.length));
+            }
+
+            population.forEach((item, i) => {
+                item.selected = indices.has(i);
+            });
+
+            const sample = population.filter(item => item.selected);
+            const mean = sample.reduce((sum, item) => sum + item.value, 0) / sample.length;
+            sampleHistory.push(mean);
+
+            renderPopulation();
+            updateStats();
+            updateCharts();
+        }
+
+        async function takeMultipleSamples() {
+            if (isAnimating) return;
+            isAnimating = true;
+            document.getElementById('multiBtn').textContent = '⏳ Sampling...';
+            document.getElementById('multiBtn').disabled = true;
+
+            for (let i = 0; i < 10; i++) {
+                takeSample();
+                await new Promise(resolve => setTimeout(resolve, 300));
+            }
+
+            isAnimating = false;
+            document.getElementById('multiBtn').textContent = '▶ 10 Samples';
+            document.getElementById('multiBtn').disabled = false;
+        }
+
+        function updateStats() {
+            const popMean = population.reduce((sum, item) => sum + item.value, 0) / population.length;
+            const sample = population.filter(item => item.selected);
+            const sampleMean = sample.length > 0 
+                ? sample.reduce((sum, item) => sum + item.value, 0) / sample.length 
+                : 0;
+
+            document.getElementById('popMean').textContent = popMean.toFixed(2);
+            document.getElementById('sampleMean').textContent = sampleMean.toFixed(2);
+            document.getElementById('popN').textContent = population.length;
+            document.getElementById('sampleN').textContent = sample.length;
+        }
+
+        function updateCharts() {
+            updateDistributionChart();
+            updateConvergenceChart();
+        }
+
+        function updateDistributionChart() {
+            const sample = population.filter(item => item.selected);
+            const ranges = [
+                { name: '1-20', min: 1, max: 20 },
+                { name: '21-40', min: 21, max: 40 },
+                { name: '41-60', min: 41, max: 60 },
+                { name: '61-80', min: 61, max: 80 },
+                { name: '81-100', min: 81, max: 100 }
+            ];
+
+            const popData = ranges.map(r => 
+                population.filter(p => p.value >= r.min && p.value <= r.max).length
+            );
+            const sampleData = ranges.map(r => 
+                sample.filter(s => s.value >= r.min && s.value <= r.max).length
+            );
+
+            const trace1 = {
+                x: ranges.map(r => r.name),
+                y: popData,
+                name: 'Population',
+                type: 'bar',
+                marker: { color: '#6366f1' }
+            };
+
+            const trace2 = {
+                x: ranges.map(r => r.name),
+                y: sampleData,
+                name: 'Sample',
+                type: 'bar',
+                marker: { color: '#10b981' }
+            };
+
+            const layout = {
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                plot_bgcolor: 'rgba(0,0,0,0)',
+                font: { color: 'white' },
+                xaxis: { gridcolor: 'rgba(255,255,255,0.1)' },
+                yaxis: { gridcolor: 'rgba(255,255,255,0.1)' },
+                margin: { t: 20, r: 20, b: 40, l: 40 },
+                height: 250
+            };
+
+            Plotly.newPlot('distributionChart', [trace1, trace2], layout, { displayModeBar: false });
+        }
+
+        function updateConvergenceChart() {
+            if (sampleHistory.length === 0) {
+                document.getElementById('convergenceChart').innerHTML = '<p style="text-align: center; padding: 2rem; color: rgba(255,255,255,0.5);">Take samples to see convergence</p>';
+                return;
+            }
+
+            const popMean = population.reduce((sum, item) => sum + item.value, 0) / population.length;
+
+            const trace1 = {
+                x: sampleHistory.map((_, i) => i + 1),
+                y: sampleHistory,
+                name: 'Sample Mean',
+                type: 'scatter',
+                mode: 'lines+markers',
+                line: { color: '#10b981', width: 3 },
+                marker: { size: 8 }
+            };
+
+            const trace2 = {
+                x: sampleHistory.map((_, i) => i + 1),
+                y: Array(sampleHistory.length).fill(popMean),
+                name: 'Population Mean',
+                type: 'scatter',
+                mode: 'lines',
+                line: { color: '#ef4444', width: 3, dash: 'dash' }
+            };
+
+            const layout = {
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                plot_bgcolor: 'rgba(0,0,0,0)',
+                font: { color: 'white' },
+                xaxis: { title: 'Sample #', gridcolor: 'rgba(255,255,255,0.1)' },
+                yaxis: { gridcolor: 'rgba(255,255,255,0.1)' },
+                margin: { t: 20, r: 20, b: 60, l: 40 },
+                height: 250
+            };
+
+            Plotly.newPlot('convergenceChart', [trace1, trace2], layout, { displayModeBar: false });
+        }
+    </script>
+</body>
+</html>
